@@ -47,5 +47,5 @@ INSERT INTO training_set (event_id, class_id, item_id, action_id) VALUES ('8', 1
 
 Project consists of 2 parts:
 
-1. fraud-main - microservice that predicts fraud transactions using Naive Bayes algorythm built with Spay, Akka Actors, Spark and Cassandra
-2. fraud-test - load-testing application, sending events to the microservice, built using Gatling
+1. fraud-main - microservice that predicts fraud events using the Naive Bayes algorythm built with Spay, Akka Actors, Spark and Cassandra
+2. fraud-test - load-testing application, simulates 10 concurrent users sending 1000 events each to the microservice, built using Gatling
