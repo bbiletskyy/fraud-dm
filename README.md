@@ -1,4 +1,4 @@
-# Fraud - Realtime fraud transaction prediction engine example
+# Fraud - Realtime Digital Marketing Fraud Prediction Example
 
 Fraud - Microservice that analizes in real time streams of events submitted via the rest interface and detects fraud ones using Machine Learning.
 
