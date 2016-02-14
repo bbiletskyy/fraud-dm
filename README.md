@@ -8,7 +8,7 @@ Fraud - Microservice that analizes in real time streams of events submitted via 
 2. sbt fraud-main/run - to run microservice, navigate to http://localhost:8080, or POST transaction with application/json Content-Type to http://localhost:8080/event
 3. sbt fraud-test/gatling:test - to load test with 10000 transactions and 10 concurrent users
 
-## Setting up database
+## Setting up a database
 
 1. Install Cassandra on the local machine.
 2. Create namespace "fraud_dm"
