@@ -11,23 +11,26 @@ object EventJsonProtocol extends DefaultJsonProtocol {
 }
 
 object Domain {
-  val items = Seq("Banner-Cosmetics", "Banner-Car", "Banner-Toy")
+  val items = Seq("Toy Banner", "Suit Banner", "Skirt Banner")
   val itemIds = Map(items(0) -> 0, items(1) -> 1, items(2) -> 2)
-
-  val actions = Seq("Click", "Over", "View")
-  val actionIds = Map(actions(0) -> 0, actions(1) -> 1, actions(2) -> 2)
   
-  def features(e: Event) = Vectors.dense(itemId(e), actionId(e))
+  val actions = Seq("Click", "View", "Loaded")
+  
+  val users = Seq("Billy", "John", "Mary")
+  val userIds = Map(users(0) -> 0, users(1) -> 1, users(2) -> 2)
+  
+  def features(e: Event) = Vectors.dense(itemId(e), userId(e))
   def itemId(e: Event): Int = itemIds(e.item)
-  def actionId(e: Event): Int = actionIds(e.action)
+  def userId(e: Event): Int = userIds(e.user)
 }
 
 object RandomEvent {
   val rnd = new scala.util.Random()
-  def randomFraudEvent() = Event(randomUUID.toString, randomUUID.toString, Domain.items(1), Domain.actions(0).toString, timestamp)
+  def randomFraudEvent() = Event(randomUUID.toString, Domain.users(0).toString, Domain.items(1), Domain.actions(0), timestamp)
   //Constructs a random events
-  def apply(): Event = Event(randomUUID.toString, randomUUID.toString, randomItem, randomAction, timestamp)
-  def randomItem() = Domain.itemIds.keys.toSeq(rnd.nextInt(Domain.itemIds.keys.size))
-  def randomAction() = Domain.actionIds.keys.toSeq(rnd.nextInt(Domain.actionIds.keys.size))
+  def apply(): Event = Event(randomUUID.toString, randomUser, randomItem, randomAction, timestamp)
+  def randomItem() = Domain.items(rnd.nextInt(Domain.items.size))
+  def randomUser() = Domain.users(rnd.nextInt(Domain.users.size))
+  def randomAction() = Domain.actions(rnd.nextInt(Domain.actions.size))
   def timestamp() = new java.util.Date().toString()
 }

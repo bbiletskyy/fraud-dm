@@ -16,25 +16,26 @@ import org.apache.spark.mllib.classification.NaiveBayes
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.classification.NaiveBayesModel
-
 import spray.json._
 import fraud.main.EventJsonProtocol._
-
 import com.datastax.spark.connector._
 import com.datastax.spark.connector.streaming._
-
+import org.apache.spark.ml.Model
+import org.apache.spark.mllib.classification.ClassificationModel
 
 /** Object in charge of running real stream analytics */
 object Spark {
   def init(driverHost: String, driverPort: Int, receiverActorName: String) = {
     val conf = sparkConf(driverHost, driverPort)
     val sc = new SparkContext(conf)
-    val ssc = new StreamingContext(sc, Seconds(1))
+
     val model = train("fraud_dm", "training_set", sc)
 
-    val actorStream = ssc.actorStream[Event](Props[Receiver], receiverActorName)
-    val fraudTransactions = actorStream.filter(t => isFraud(t, model)).map(t => (t.id, t.toJson.compactPrint))
-    fraudTransactions.saveToCassandra("fraud_dm", "fraud_events", SomeColumns("event_id", "event"))
+    //    val ssc = new StreamingContext(sc, Seconds(1))
+    //    val actorStream = ssc.actorStream[Event](Props[Receiver], receiverActorName)
+    //    val fraudEvents = actorStream.filter(e => e.action == "Click").filter(t => isFraud(t, model)).map(t => (t.id, t.toJson.compactPrint))
+    //    fraudEvents.saveToCassandra("fraud_dm", "fraud_events", SomeColumns("event_id", "event"))
+    val ssc = setupPredictionStream(sc, receiverActorName, model)
 
     ssc.start()
     ssc.awaitTermination(10000)
@@ -42,15 +43,23 @@ object Spark {
   }
 
   /** Trains and returns a Naive Bayes model given Cassandra keysapce name and the table name where the training set is available.*/
-  def train(keySpace: String, table: String, sc: SparkContext): NaiveBayesModel = {
+  def train(keySpace: String, table: String, sc: SparkContext): ClassificationModel = {
     val trainingSet = sc.cassandraTable(keySpace, table)
-    val lps = trainingSet.map { r => LabeledPoint(r.getDouble("class_id"), Vectors.dense(r.getDouble("item_id"), r.getDouble("action_id"))) }
+    val lps = trainingSet.map { r => LabeledPoint(r.getDouble("class_id"), Vectors.dense(r.getDouble("item_id"), r.getDouble("user_id"))) }
     NaiveBayes.train(lps, lambda = 1.0)
   }
 
-  /** Predicts whether a transaction is a fraud. Returns <code>true</code> if transaction is fraud given the model, else returns <code>false</code>. */
-  def isFraud(transaction: Event, model: NaiveBayesModel): Boolean = {
-    model.predict(Domain.features(transaction)) == 1.0
+  def setupPredictionStream(sc: SparkContext, receiverActorName: String, model: ClassificationModel): StreamingContext = {
+    val ssc = new StreamingContext(sc, Seconds(1))
+    val actorStream = ssc.actorStream[Event](Props[Receiver], receiverActorName)
+    val fraudEvents = actorStream.filter(e => e.action == "Click").filter(e => isFraud(e, model)).map(e => (e.id, e.toJson.compactPrint))
+    fraudEvents.saveToCassandra("fraud_dm", "fraud_events", SomeColumns("event_id", "event"))
+    ssc;
+  }
+
+  /** Predicts whether an event is a fraud. Returns <code>true</code> if event is fraud given the model, else returns <code>false</code>. */
+  def isFraud(event: Event, model: ClassificationModel): Boolean = {
+    model.predict(Domain.features(event)) == 1.0
   }
 
   /** Returns Spark configuration */
@@ -64,10 +73,10 @@ object Spark {
     .set("spark.cassandra.connection.host", "127.0.0.1")
 }
 
-/** This actor is a bridge to Spark. It receives transactions and puts them to the spark stream */
+/** This actor is a bridge to Spark. It receives events and puts them to the spark stream */
 class Receiver extends Actor with ActorHelper {
   override def preStart() = {
-    println(s"Starting Spark Transaction Receiver actor at ${context.self.path}")
+    println(s"Starting Spark event Receiver actor at ${context.self.path}")
   }
   def receive = {
     case t: Event =>

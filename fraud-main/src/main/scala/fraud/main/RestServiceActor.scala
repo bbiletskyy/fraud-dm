@@ -24,7 +24,7 @@ class RestServiceActor(connector: ActorRef) extends Actor with RestService {
   def indexHtml(): Elem =
     <html>
       <body>
-        <h1>Fraud Event Detection REST API</h1>
+        <h1>Fraud Event Detection</h1>
         <a href="/fraud">Detected Fraud Events</a>
         <br/>
         <a href="/events">Random Events</a>
