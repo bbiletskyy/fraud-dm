@@ -26,21 +26,21 @@ CREATE TABLE fraud_dm.fraud_events (event_id text PRIMARY KEY, event text);
 4. Create a table for storing training set examples
 
 ```
-CREATE TABLE fraud_dm.training_set (event_id text PRIMARY KEY, action_id double, class_id double, item_id double);
+CREATE TABLE fraud_dm.training_set (event_id text PRIMARY KEY, user_id double, class_id double, item_id double);
 ```
 
 5. Insert training set examples:
 
 ```
 USE  fraud_dm;
-INSERT INTO training_set (event_id, class_id, item_id, action_id) VALUES ('1', 1.0, 1.0, 0.0);
-INSERT INTO training_set (event_id, class_id, item_id, action_id) VALUES ('2', 0.0, 0.0, 0.0);
-INSERT INTO training_set (event_id, class_id, item_id, action_id) VALUES ('3', 0.0, 2.0, 0.0);
-INSERT INTO training_set (event_id, class_id, item_id, action_id) VALUES ('4', 0.0, 0.0, 2.0);
-INSERT INTO training_set (event_id, class_id, item_id, action_id) VALUES ('5', 0.0, 1.0, 1.0);
-INSERT INTO training_set (event_id, class_id, item_id, action_id) VALUES ('6', 1.0, 1.0, 0.0);
-INSERT INTO training_set (event_id, class_id, item_id, action_id) VALUES ('7', 1.0, 1.0, 0.0);
-INSERT INTO training_set (event_id, class_id, item_id, action_id) VALUES ('8', 1.0, 1.0, 0.0);
+INSERT INTO training_set (event_id, class_id, item_id, user_id) VALUES ('1', 1.0, 1.0, 0.0);
+INSERT INTO training_set (event_id, class_id, item_id, user_id) VALUES ('2', 0.0, 0.0, 0.0);
+INSERT INTO training_set (event_id, class_id, item_id, user_id) VALUES ('3', 0.0, 2.0, 0.0);
+INSERT INTO training_set (event_id, class_id, item_id, user_id) VALUES ('4', 0.0, 0.0, 2.0);
+INSERT INTO training_set (event_id, class_id, item_id, user_id) VALUES ('5', 0.0, 1.0, 1.0);
+INSERT INTO training_set (event_id, class_id, item_id, user_id) VALUES ('6', 1.0, 1.0, 0.0);
+INSERT INTO training_set (event_id, class_id, item_id, user_id) VALUES ('7', 1.0, 1.0, 0.0);
+INSERT INTO training_set (event_id, class_id, item_id, user_id) VALUES ('8', 1.0, 1.0, 0.0);
 ```
 
 ## Project Structure 
